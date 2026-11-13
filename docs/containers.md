@@ -102,8 +102,8 @@ GitHub Actions every Monday. It opens update pull requests, which run the tests
 and security checks. Merging a dependency update into `main` triggers a new image
 build. Updates are not automatically merged.
 
-The separate **Security scans** workflow reports known dependency and container
-vulnerabilities. It can fail while publication succeeds, because publication is
+The separate **Security scans** workflow reports known Python dependency
+vulnerabilities. Container OS packages are not scanned. It can fail while publication succeeds, because publication is
 gated on integration tests rather than vulnerability findings. Inspect those
 reports before choosing an image for your deployment.
 

@@ -19,7 +19,7 @@ record the source revision in `vendor/UPSTREAM.md` when updating them.
 
 Check the **Security scans** workflow as well as the integration tests. Review
 vulnerability advisories and available fixes before changing a dependency or the
-base image. Keep scanner versions and action commit pins current. Do not suppress
+base image. Keep the Python audit tool version and action commit pins current. Do not suppress
 findings without documenting why they do not apply to this project.
 
 The image publisher reuses the integration workflow before pushing AMD64 and
