@@ -40,47 +40,70 @@ service.
 
 ## Quick start
 
-From the project directory:
+Get the deployment files:
 
 ```bash
+git clone https://github.com/ZFF85/datouboss-mqtt-bridge.git
+cd datouboss-mqtt-bridge
 cp .env.example .env
 ls -l /dev/serial/by-id/
 ```
 
 Edit `.env`: set `SERIAL_DEVICE` to the inverter adapter's full, stable
 `/dev/serial/by-id/...` path, then set `MQTT_HOST` and any broker credentials.
-The example values are placeholders. Keep `.env` private, and leave it excluded from
-Git and the Docker build context.
+The example values are placeholders. Keep `.env` private, and leave it excluded
+from Git and the Docker build context.
 
-Build and test the serial connection before starting the service:
+### Use the published image
+
+[compose.image.yaml](compose.image.yaml) uses
+`ghcr.io/zff85/datouboss-mqtt-bridge:latest`, with AMD64 and ARM64 variants.
+Docker selects the matching platform automatically. No local build is needed.
 
 ```bash
-docker compose build
-docker compose run --rm datouboss-mqtt-bridge python bridge.py --probe
+docker compose -f compose.image.yaml pull
+docker compose -f compose.image.yaml run --rm datouboss-mqtt-bridge python bridge.py --probe
+docker compose -f compose.image.yaml up -d
+docker compose -f compose.image.yaml logs -f --tail=50
 ```
 
 `--probe` queries the identity and all telemetry commands, prints JSON, and exits
 with status 0 if all telemetry queries succeeded, or 1 if any failed. It does not
 connect to MQTT. Stop an already running bridge before probing the same adapter.
 
-Start the bridge:
+To update a running installation:
 
 ```bash
+docker compose -f compose.image.yaml pull
+docker compose -f compose.image.yaml up -d
+```
+
+To stop it:
+
+```bash
+docker compose -f compose.image.yaml down
+```
+
+Only `compose.image.yaml` and a configured `.env` are needed for this deployment.
+The image can also be pinned to a release tag or digest using `INVERTER_IMAGE`.
+See [Container images and updates](docs/containers.md) for available tags,
+publication, package visibility, and rollback instructions.
+
+### Build locally
+
+The default [compose.yaml](compose.yaml) builds the image from this checkout:
+
+```bash
+docker compose build
+docker compose run --rm datouboss-mqtt-bridge python bridge.py --probe
 docker compose up -d
 docker compose logs -f --tail=50
 ```
 
-Update after pulling changes:
-
-```bash
-docker compose up -d --build
-```
-
-Stop the service:
-
-```bash
-docker compose down
-```
+Use `docker compose up -d --build` after source changes, or
+`docker compose build --pull` followed by `docker compose up -d` to refresh the
+base image. Stop a local-build deployment with `docker compose down` before
+switching to the published-image deployment.
 
 ## Configuration
 
@@ -91,6 +114,7 @@ the container. `SERIAL_PORT` is set by Compose, so change `SERIAL_DEVICE`, not
 | Variable | Default | Description |
 | --- | --- | --- |
 | `SERIAL_DEVICE` | Required by Compose | Host path to the inverter's RS232 adapter. |
+| `INVERTER_IMAGE` | `ghcr.io/zff85/datouboss-mqtt-bridge:latest` | Image reference used by `compose.image.yaml`. |
 | `MQTT_HOST` | Required | Broker hostname or IP reachable from the container. |
 | `MQTT_PORT` | `1883` | MQTT TCP port. |
 | `MQTT_USERNAME` | Empty | Optional broker username. |
@@ -288,7 +312,9 @@ to an immutable digest. Keep these pins updated when maintaining the workflow.
 These checks identify known package vulnerabilities. They do not replace source
 code review, assess whether every reported issue is exploitable in this bridge,
 or cover all custom or vendored code. A failed check reports a problem, but does
-not automatically update dependencies or enforce branch protection rules.
+not automatically update dependencies or enforce branch protection rules. Image
+publication is gated on integration tests, while these security scans run
+independently and report findings without blocking publication.
 
 ## License and acknowledgements
 

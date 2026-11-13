@@ -21,3 +21,8 @@ Check the **Security scans** workflow as well as the integration tests. Review
 vulnerability advisories and available fixes before changing a dependency or the
 base image. Keep scanner versions and action commit pins current. Do not suppress
 findings without documenting why they do not apply to this project.
+
+The image publisher reuses the integration workflow before pushing AMD64 and
+ARM64 images to GHCR. Dependabot update pull requests require review and merge
+before runtime dependency changes are published. See `docs/containers.md` for
+rebuild schedules, tags, and package permissions.
