@@ -16,3 +16,8 @@ Distinguish real-hardware results from simulated test results.
 
 The files under `vendor/` are pinned upstream copies. Preserve their license and
 record the source revision in `vendor/UPSTREAM.md` when updating them.
+
+Check the **Security scans** workflow as well as the integration tests. Review
+vulnerability advisories and available fixes before changing a dependency or the
+base image. Keep scanner versions and action commit pins current. Do not suppress
+findings without documenting why they do not apply to this project.

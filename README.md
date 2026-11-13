@@ -256,6 +256,40 @@ A pseudo-terminal simulates both supported identities, fragmented responses, a
 failed battery query, omitted stale values, recovery, discovery, and shutdown.
 GitHub Actions runs this same suite on pushes and pull requests.
 
+## Security checks
+
+The **Security scans** GitHub Actions workflow runs on pushes and pull requests,
+can be started manually, and runs every Monday at 07:17 UTC on the default
+branch. Scheduled checks can detect newly published advisories even when the
+project has not changed.
+
+- **Python dependency audit:** [pip-audit](https://github.com/pypa/pip-audit)
+  resolves `requirements.txt` and checks runtime dependencies against known
+  vulnerability advisories. Any known vulnerability fails this job. Dependency
+  collection errors also fail the audit.
+- **Container vulnerability scan:** [Grype](https://github.com/anchore/grype)
+  checks OS and application packages in a freshly built runtime image. The build
+  pulls the current `python:3.12-slim` base image. Findings with **High** or
+  **Critical** severity fail this job, including those without a published fix.
+  Lower severity findings remain visible in the report.
+
+Open **Actions → Security scans → a workflow run** to inspect the job logs.
+The Python JSON report and container text report are also saved as downloadable
+artifacts for 14 days, including when findings cause a job to fail. If a tool or
+network failure prevents a report from being generated, the job log contains the
+error instead.
+
+Scans use public advisory databases and need outbound network access, but no
+repository secrets or inverter connection. The container scanner receives only
+the exported runtime image, without the host Docker socket or local `.env`.
+Actions are pinned to commit SHAs, `pip-audit` to a version, and the Grype image
+to an immutable digest. Keep these pins updated when maintaining the workflow.
+
+These checks identify known package vulnerabilities. They do not replace source
+code review, assess whether every reported issue is exploitable in this bridge,
+or cover all custom or vendored code. A failed check reports a problem, but does
+not automatically update dependencies or enforce branch protection rules.
+
 ## License and acknowledgements
 
 This project is licensed under the [MIT License](LICENSE).
