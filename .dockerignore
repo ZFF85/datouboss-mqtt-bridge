@@ -1,0 +1,8 @@
+# Only runtime inputs belong in the image.
+*
+!requirements.txt
+!bridge.py
+!LICENSE
+!vendor/
+!vendor/decode_h_protocol.py
+!vendor/LICENSE

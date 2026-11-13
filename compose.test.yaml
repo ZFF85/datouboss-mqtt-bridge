@@ -1,0 +1,14 @@
+services:
+  broker:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./tests/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+  tests:
+    build: .
+    depends_on:
+      - broker
+    volumes:
+      - ./tests:/tests:ro
+    environment:
+      PYTHONPATH: /app
+    command: [python, /tests/integration.py]

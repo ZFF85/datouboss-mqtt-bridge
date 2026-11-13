@@ -1,0 +1,26 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Test protocol and serial-to-MQTT integration
+        run: docker compose -p datouboss-mqtt-test -f compose.test.yaml up --build --abort-on-container-exit --exit-code-from tests
+      - name: Show container logs
+        if: failure()
+        run: docker compose -p datouboss-mqtt-test -f compose.test.yaml logs --no-color
+      - name: Clean up test containers
+        if: always()
+        run: docker compose -p datouboss-mqtt-test -f compose.test.yaml down --volumes
